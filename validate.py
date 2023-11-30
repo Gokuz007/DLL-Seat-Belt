@@ -312,6 +312,7 @@ def validate(args):
             
 
             # compute output
+            output = None
             with amp_autocast():
                 output = model(input)
 
@@ -322,8 +323,13 @@ def validate(args):
             if real_labels is not None:
                 real_labels.add_result(output)
             
-            batch_results = [(out.tolist(), tgt.tolist()) for out, tgt in zip(output, target)]
-            results.extend(batch_results)
+            if output is not None:
+                probs = torch.nn.functional.softmax(output, dim=-1)
+                # Get the top class as the predicted class
+                _, pred_class = torch.max(probs, dim=-1)
+                # Store the predictions and targets
+                batch_results = list(zip(pred_class.tolist(), target.tolist()))
+                results.extend(batch_results)
             
             # measure accuracy and record loss
             acc1, acc5 = accuracy(output.detach(), target, topk=(1, 5))

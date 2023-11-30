@@ -323,7 +323,7 @@ def validate(args):
                 real_labels.add_result(output)
             
             batch_results = [(out.tolist(), tgt.tolist()) for out, tgt in zip(output, target)]
-        results.extend(batch_results)
+            results.extend(batch_results)
             
             # measure accuracy and record loss
             acc1, acc5 = accuracy(output.detach(), target, topk=(1, 5))

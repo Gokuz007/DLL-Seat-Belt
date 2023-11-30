@@ -301,12 +301,16 @@ def validate(args):
             model(input)
 
         end = time.time()
+        results = []
         for batch_idx, (input, target) in enumerate(loader):
             if args.no_prefetcher:
                 target = target.to(device)
                 input = input.to(device)
             if args.channels_last:
                 input = input.contiguous(memory_format=torch.channels_last)
+            
+            batch_results = list(zip(output.tolist(), target.tolist()))
+            results.extend(batch_results)
 
             # compute output
             with amp_autocast():
@@ -345,7 +349,13 @@ def validate(args):
                         top5=top5
                     )
                 )
-
+        
+        with open('predictions.csv', 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Prediction', 'Target'])
+            for pred, targ in results:
+                writer.writerow([pred, targ])
+        
     if real_labels is not None:
         # real labels mode replaces topk values at the end
         top1a, top5a = real_labels.get_accuracy(k=1), real_labels.get_accuracy(k=5)

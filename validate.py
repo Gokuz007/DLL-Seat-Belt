@@ -322,8 +322,8 @@ def validate(args):
             if real_labels is not None:
                 real_labels.add_result(output)
             
-            batch_results = list(zip(output.tolist(), target.tolist()))
-            results.extend(batch_results)
+            batch_results = [(out.tolist(), tgt.tolist()) for out, tgt in zip(output, target)]
+        results.extend(batch_results)
             
             # measure accuracy and record loss
             acc1, acc5 = accuracy(output.detach(), target, topk=(1, 5))
